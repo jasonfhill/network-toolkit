@@ -3,14 +3,20 @@ FROM debian:buster-slim
 MAINTAINER Jason Hill
 LABEL org.opencontainers.image.authors="jason@hill.io"
 
-EXPOSE 80 443 1180 11443
+EXPOSE 80 443
 
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y apt-utils \
+ENV DEBIAN_FRONTEND noninteractive
+RUN echo -e 'LANG="en_US.UTF-8"\nLANGUAGE="en_US:en"\n' > /etc/default/locale \
+  && apt-get update \
+  && apt-get install -y locales apt-utils \
+  && locale-gen --purge en_US.UTF-8 \
   && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
-  && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  && set -x \
+  && addgroup --system --gid 101 nginx \
+  && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false --uid 101 nginx \
+  && apt-get upgrade -y \
+  && apt-get install -y \
+    vim \
     apt-utils \
     dnsutils \
     iproute2 \
@@ -27,7 +33,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     tcpdump \
     tcptraceroute \
     nmap \
-    wireshark
+    tshark
 
 COPY docker/index.html /usr/share/nginx/html/
 
