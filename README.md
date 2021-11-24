@@ -27,3 +27,11 @@ terraform workspace new production  # production environment
 terraform workspace list            # production should be active at this point
 terraform plan -out=tfplan
 ```
+
+To retrieve the sensitive `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` use the terraform console
+
+```shell
+terraform console
+> aws_iam_access_key.github.id
+> nonsensitive(aws_iam_access_key.github.secret)
+```
